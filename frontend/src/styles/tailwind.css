@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Paleta base para Unifique */
+:root{
+  --unifique-blue: #1e40af;
+}
