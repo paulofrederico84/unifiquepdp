@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { v4 as uuidv4 } from 'uuid';
+import CctvIconSprite from './CctvIconSprite.jsx';
 
 const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDelete, onContextMenu }) => {
     const [isDragging, setIsDragging] = useState(false);
@@ -43,25 +44,24 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
     };
 
     const defaultIcons = {
-        camera: '📹',
-        switch: '🔌',
-        nvr: '💾',
-        router: '📡',
-        cable: '🔗',
+        camera: 'bullet',
+        switch: 'switch-poe',
+        nvr: 'nvr',
+        router: 'router',
+        cable: 'cable',
     };
 
     const iconSize = equipment.iconSize || 48;
     const iconBgColor = equipment.iconBgColor || '#3B82F6';
-    const displayIcon = equipment.icon || defaultIcons[equipment.type] || '📦';
+    const displayIcon = equipment.icon || defaultIcons[equipment.type] || 'bullet';
     const displayName = equipment.displayName || equipment.name || equipment.type;
     const customImage = equipment.customIconImage;
 
     return (
         <>
             <div
-                className={`absolute cursor-move select-none group ${
-                    isDragging ? 'opacity-75' : ''
-                }`}
+                className={`absolute cursor-move select-none group ${isDragging ? 'opacity-75' : ''
+                    }`}
                 style={{
                     left: equipment.x,
                     top: equipment.y,
@@ -78,7 +78,7 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
             >
                 {/* Ícone do equipamento */}
                 <div
-                    className="flex flex-col items-center justify-center rounded-full shadow-lg hover:shadow-xl transition-all"
+                    className="flex flex-col items-center justify-center rounded-full shadow-lg hover:shadow-xl transition-all overflow-hidden"
                     style={{
                         width: iconSize + 16,
                         height: iconSize + 16,
@@ -89,15 +89,21 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
                         <img
                             src={customImage}
                             alt={displayName}
-                            className="rounded-full object-cover"
+                            className="rounded-full"
                             style={{
                                 width: iconSize + 16,
-                                height: iconSize + 16
+                                height: iconSize + 16,
+                                objectFit: 'contain',
+                                objectPosition: 'center'
                             }}
                         />
                     ) : (
-                        <div style={{ fontSize: iconSize * 0.5 }}>
-                            {displayIcon}
+                        <div className="flex items-center justify-center w-full h-full">
+                            <CctvIconSprite
+                                name={displayIcon}
+                                size={iconSize * (equipment.iconGlyphScale ?? 0.7)}
+                                color={equipment.iconColor || '#111111'}
+                            />
                         </div>
                     )}
                 </div>
