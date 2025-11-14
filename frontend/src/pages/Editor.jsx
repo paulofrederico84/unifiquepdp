@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-// Substitui biblioteca antiga por Sidebar + CameraPanel
+// Substitui biblioteca antiga por Sidebar + painéis por tipo
 import Sidebar from '../components/Sidebar';
 import CameraPanel from '../components/CameraPanel';
+import SwitchPanel from '../components/SwitchPanel';
+import NvrPanel from '../components/NvrPanel';
+import RouterPanel from '../components/RouterPanel';
 import Canvas from '../components/Canvas';
 import PropertiesPanel from '../components/PropertiesPanel';
 import { saveProjectLayout, fetchProjectLayout, fetchProject } from '../services/api';
@@ -212,6 +215,30 @@ export default function Editor() {
           <CameraPanel
             onClose={() => setActiveTool(null)}
             onAddEquipment={handleAddEquipment}
+            placedEquipments={placedEquipments}
+            onDeleteEquipment={handleDeleteEquipment}
+            onDuplicateEquipment={(eq) => handleAddEquipment({ ...eq, instanceId: undefined })}
+          />
+        )}
+        {activeTool === 'switch' && (
+          <SwitchPanel
+            onClose={() => setActiveTool(null)}
+            placedEquipments={placedEquipments}
+            onDeleteEquipment={handleDeleteEquipment}
+            onDuplicateEquipment={(eq) => handleAddEquipment({ ...eq, instanceId: undefined })}
+          />
+        )}
+        {activeTool === 'nvr' && (
+          <NvrPanel
+            onClose={() => setActiveTool(null)}
+            placedEquipments={placedEquipments}
+            onDeleteEquipment={handleDeleteEquipment}
+            onDuplicateEquipment={(eq) => handleAddEquipment({ ...eq, instanceId: undefined })}
+          />
+        )}
+        {activeTool === 'router' && (
+          <RouterPanel
+            onClose={() => setActiveTool(null)}
             placedEquipments={placedEquipments}
             onDeleteEquipment={handleDeleteEquipment}
             onDuplicateEquipment={(eq) => handleAddEquipment({ ...eq, instanceId: undefined })}
