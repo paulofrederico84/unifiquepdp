@@ -1,30 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { v4 as uuidv4 } from 'uuid';
 
-const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDelete }) => {
+const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDelete, onContextMenu }) => {
     const [isDragging, setIsDragging] = useState(false);
-    const [showContextMenu, setShowContextMenu] = useState(false);
-    const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
 
     const handleContextMenu = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setContextMenuPos({ x: e.clientX, y: e.clientY });
-        setShowContextMenu(true);
         onSelect(equipment.instanceId);
+        // Passar evento para o Canvas gerenciar o menu
+        if (onContextMenu) {
+            onContextMenu(e, equipment);
+        }
     };
 
     const handleMouseDown = (e) => {
         if (e.button !== 0) return; // apenas botão esquerdo
+        e.stopPropagation();
         setIsDragging(true);
-        const startX = e.clientX - equipment.x;
-        const startY = e.clientY - equipment.y;
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startEquipX = equipment.x;
+        const startEquipY = equipment.y;
 
         const handleMouseMove = (moveEvent) => {
-            const newX = moveEvent.clientX - startX;
-            const newY = moveEvent.clientY - startY;
-            onMove(equipment.instanceId, newX, newY);
+            const deltaX = moveEvent.clientX - startX;
+            const deltaY = moveEvent.clientY - startY;
+            onMove(equipment.instanceId, startEquipX + deltaX, startEquipY + deltaY);
         };
 
         const handleMouseUp = () => {
@@ -58,7 +62,6 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
                 onClick={(e) => {
                     e.stopPropagation();
                     onSelect(equipment.instanceId);
-                    setShowContextMenu(false);
                 }}
                 onMouseDown={handleMouseDown}
                 onContextMenu={handleContextMenu}
@@ -68,44 +71,15 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
                     <div className="text-xs mt-1 text-center font-medium whitespace-nowrap">{equipment.name}</div>
                 </div>
             </div>
-            {showContextMenu && (
-                <>
-                    <div
-                        className="fixed inset-0 z-40"
-                        onClick={() => setShowContextMenu(false)}
-                    />
-                    <div
-                        className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[140px]"
-                        style={{ left: contextMenuPos.x, top: contextMenuPos.y }}
-                    >
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onCopy(equipment);
-                                setShowContextMenu(false);
-                            }}
-                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
-                        >
-                            <span>📋</span> Copiar
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onDelete(equipment.instanceId);
-                                setShowContextMenu(false);
-                            }}
-                            className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
-                        >
-                            <span>🗑️</span> Excluir
-                        </button>
-                    </div>
-                </>
-            )}
         </>
     );
 };
 
-export default function Canvas({ placedEquipments, onAddEquipment, selectedId, onSelectEquipment, onMoveEquipment, onDeleteEquipment, backgroundImage, imageZoom = 1, imageRotation = 0 }) {
+export default function Canvas({ placedEquipments, onAddEquipment, selectedId, onSelectEquipment, onMoveEquipment, onDeleteEquipment, backgroundImage, imageZoom = 1, imageRotation = 0, imageOffsetX = 0, imageOffsetY = 0, onOffsetChange }) {
+    const [isPanning, setIsPanning] = useState(false);
+    const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+    const [contextMenu, setContextMenu] = useState(null);
+
     const handleCopyEquipment = (equipment) => {
         onAddEquipment({
             ...equipment,
@@ -113,13 +87,68 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
             x: equipment.x + 30,
             y: equipment.y + 30,
         });
+        setContextMenu(null);
     };
+
+    const handleEquipmentContextMenu = (e, equipment) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setContextMenu({
+            x: e.clientX,
+            y: e.clientY,
+            equipment: equipment
+        });
+    };
+
+    const handleCanvasMouseDown = (e) => {
+        // Só inicia pan se tiver imagem e zoom > 1, e clicar com botão esquerdo no fundo (não em equipamentos)
+        const isCanvasBackground = e.target.id === 'canvas-area' || e.target.id === 'equipment-layer' || e.target.id === 'background-layer';
+        if (backgroundImage && imageZoom > 1 && e.button === 0 && isCanvasBackground) {
+            setIsPanning(true);
+            setPanStart({ x: e.clientX - imageOffsetX, y: e.clientY - imageOffsetY });
+            e.preventDefault();
+        }
+    };
+
+    const handleCanvasMouseMove = (e) => {
+        if (isPanning && onOffsetChange) {
+            const newX = e.clientX - panStart.x;
+            const newY = e.clientY - panStart.y;
+            onOffsetChange(newX, newY);
+        }
+    };
+
+    const handleCanvasMouseUp = () => {
+        setIsPanning(false);
+    };
+
+    useEffect(() => {
+        if (isPanning) {
+            const moveHandler = (e) => {
+                if (onOffsetChange) {
+                    const newX = e.clientX - panStart.x;
+                    const newY = e.clientY - panStart.y;
+                    onOffsetChange(newX, newY);
+                }
+            };
+            const upHandler = () => setIsPanning(false);
+
+            document.addEventListener('mousemove', moveHandler);
+            document.addEventListener('mouseup', upHandler);
+            return () => {
+                document.removeEventListener('mousemove', moveHandler);
+                document.removeEventListener('mouseup', upHandler);
+            };
+        }
+    }, [isPanning, panStart, onOffsetChange]);
 
     const [{ isOver }, drop] = useDrop(() => ({
         accept: 'equipment',
         drop: (item, monitor) => {
             const offset = monitor.getClientOffset();
             const canvasRect = document.getElementById('canvas-area').getBoundingClientRect();
+
+            // Posição simples relativa ao canvas (equipamentos já estão na camada transformada)
             const x = offset.x - canvasRect.left;
             const y = offset.y - canvasRect.top;
 
@@ -133,7 +162,7 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
         collect: (monitor) => ({
             isOver: monitor.isOver(),
         }),
-    }));
+    }), [onAddEquipment]);
 
     // Define o estilo de fundo baseado na presença de backgroundImage
     const backgroundStyle = backgroundImage
@@ -148,12 +177,12 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
             backgroundSize: '20px 20px',
         };
 
-    // Estilo do container interno que aplica zoom e rotação
+    // Estilo do container interno que aplica zoom, rotação e offset (pan)
     const transformStyle = backgroundImage
         ? {
-            transform: `scale(${imageZoom}) rotate(${imageRotation}deg)`,
+            transform: `translate(${imageOffsetX}px, ${imageOffsetY}px) scale(${imageZoom}) rotate(${imageRotation}deg)`,
             transformOrigin: 'center',
-            transition: 'transform 0.2s ease-out',
+            transition: isPanning ? 'none' : 'transform 0.2s ease-out',
         }
         : {};
 
@@ -161,18 +190,26 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
         <div
             ref={drop}
             id="canvas-area"
-            className={`relative w-full h-full border-2 border-dashed rounded transition-colors overflow-hidden ${isOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-white'
-                }`}
-            onClick={() => onSelectEquipment(null)}
+            className={`relative w-full h-full border-2 border-dashed rounded transition-colors overflow-hidden ${isOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-white'} ${isPanning ? 'cursor-grabbing' : (backgroundImage && imageZoom > 1 ? 'cursor-grab' : '')}`}
+            onClick={() => {
+                onSelectEquipment(null);
+                setContextMenu(null);
+            }}
+            onMouseDown={handleCanvasMouseDown}
         >
-            {/* Camada de fundo com zoom e rotação */}
+            {/* Camada de fundo com zoom, rotação e pan */}
             <div
-                className="absolute inset-0 w-full h-full"
+                id="background-layer"
+                className="absolute inset-0 w-full h-full pointer-events-none"
                 style={{ ...backgroundStyle, ...transformStyle }}
             />
 
-            {/* Camada de equipamentos */}
-            <div className="absolute inset-0 w-full h-full">
+            {/* Camada de equipamentos com mesma transformação */}
+            <div
+                id="equipment-layer"
+                className="absolute inset-0 w-full h-full"
+                style={transformStyle}
+            >
                 {placedEquipments.map((eq) => (
                     <PlacedEquipment
                         key={eq.instanceId}
@@ -182,6 +219,7 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
                         onMove={onMoveEquipment}
                         onCopy={handleCopyEquipment}
                         onDelete={onDeleteEquipment}
+                        onContextMenu={handleEquipmentContextMenu}
                     />
                 ))}
                 {placedEquipments.length === 0 && !isOver && (
@@ -190,6 +228,40 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
                     </div>
                 )}
             </div>
+
+            {/* Menu de contexto - renderizado fora da camada transformada */}
+            {contextMenu && (
+                <>
+                    <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setContextMenu(null)}
+                    />
+                    <div
+                        className="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[140px]"
+                        style={{ left: contextMenu.x, top: contextMenu.y }}
+                    >
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleCopyEquipment(contextMenu.equipment);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+                        >
+                            <span>📋</span> Copiar
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteEquipment(contextMenu.equipment.instanceId);
+                                setContextMenu(null);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+                        >
+                            <span>🗑️</span> Excluir
+                        </button>
+                    </div>
+                </>
+            )}
         </div>
     );
 }

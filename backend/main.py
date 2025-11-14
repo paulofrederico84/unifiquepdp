@@ -156,7 +156,10 @@ async def save_project_layout(request):
         data = await request.json()
         equipments = data.get("equipments", [])
         
-        # Mock storage (in production, save to database)
+        # Persistir no banco de dados em memória
+        if project_id in PROJECTS_DB:
+            PROJECTS_DB[project_id]["equipments"] = equipments
+        
         return JSONResponse({
             "success": True,
             "project_id": project_id,

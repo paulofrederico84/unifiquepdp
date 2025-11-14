@@ -17,6 +17,8 @@ export default function Editor() {
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [imageZoom, setImageZoom] = useState(1);
   const [imageRotation, setImageRotation] = useState(0);
+  const [imageOffsetX, setImageOffsetX] = useState(0);
+  const [imageOffsetY, setImageOffsetY] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -103,13 +105,17 @@ export default function Editor() {
     }
   };
 
-  // Auto-save a cada 10 segundos
+  // Auto-save a cada 10 segundos - otimizado para não recriar interval
   useEffect(() => {
-    if (placedEquipments.length > 0 && !isLoading) {
-      const interval = setInterval(handleSave, 10000);
+    if (!isLoading) {
+      const interval = setInterval(() => {
+        if (placedEquipments.length > 0) {
+          saveProjectLayout(id, placedEquipments).catch(err => console.error('Auto-save error:', err));
+        }
+      }, 10000);
       return () => clearInterval(interval);
     }
-  }, [placedEquipments, isLoading]);
+  }, [id, isLoading]);
 
   if (isLoading) {
     return (
@@ -175,7 +181,7 @@ export default function Editor() {
                 <span className="text-sm w-12 text-center">{imageRotation}°</span>
                 <button onClick={() => setImageRotation(imageRotation + 15)} className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm">↷</button>
               </div>
-              <button onClick={() => { setImageZoom(1); setImageRotation(0); }} className="px-3 py-1 bg-blue-500 text-white hover:bg-blue-600 rounded text-sm ml-auto">Resetar</button>
+              <button onClick={() => { setImageZoom(1); setImageRotation(0); setImageOffsetX(0); setImageOffsetY(0); }} className="px-3 py-1 bg-blue-500 text-white hover:bg-blue-600 rounded text-sm ml-auto">Resetar</button>
             </div>
           )}
           <div className="flex-1 overflow-hidden">
@@ -189,6 +195,9 @@ export default function Editor() {
               backgroundImage={backgroundImage}
               imageZoom={imageZoom}
               imageRotation={imageRotation}
+              imageOffsetX={imageOffsetX}
+              imageOffsetY={imageOffsetY}
+              onOffsetChange={(x, y) => { setImageOffsetX(x); setImageOffsetY(y); }}
             />
           </div>
         </main>
