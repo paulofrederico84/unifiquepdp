@@ -214,7 +214,7 @@ export default function Editor() {
         {activeTool === 'camera' && (
           <CameraPanel
             onClose={() => setActiveTool(null)}
-            onAddEquipment={handleAddEquipment}
+            onAddEquipment={(item) => { handleAddEquipment(item); setActiveTool(null); }}
             placedEquipments={placedEquipments}
             onDeleteEquipment={handleDeleteEquipment}
             onDuplicateEquipment={(eq) => handleAddEquipment({ ...eq, instanceId: undefined })}
@@ -223,6 +223,7 @@ export default function Editor() {
         {activeTool === 'switch' && (
           <SwitchPanel
             onClose={() => setActiveTool(null)}
+            onAddEquipment={(item) => { handleAddEquipment(item); setActiveTool(null); }}
             placedEquipments={placedEquipments}
             onDeleteEquipment={handleDeleteEquipment}
             onDuplicateEquipment={(eq) => handleAddEquipment({ ...eq, instanceId: undefined })}
@@ -231,6 +232,7 @@ export default function Editor() {
         {activeTool === 'nvr' && (
           <NvrPanel
             onClose={() => setActiveTool(null)}
+            onAddEquipment={(item) => { handleAddEquipment(item); setActiveTool(null); }}
             placedEquipments={placedEquipments}
             onDeleteEquipment={handleDeleteEquipment}
             onDuplicateEquipment={(eq) => handleAddEquipment({ ...eq, instanceId: undefined })}
@@ -239,6 +241,7 @@ export default function Editor() {
         {activeTool === 'router' && (
           <RouterPanel
             onClose={() => setActiveTool(null)}
+            onAddEquipment={(item) => { handleAddEquipment(item); setActiveTool(null); }}
             placedEquipments={placedEquipments}
             onDeleteEquipment={handleDeleteEquipment}
             onDuplicateEquipment={(eq) => handleAddEquipment({ ...eq, instanceId: undefined })}

@@ -41,7 +41,7 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
         document.addEventListener('mouseup', handleMouseUp);
     };
 
-    const icons = {
+    const defaultIcons = {
         camera: '📹',
         switch: '🔌',
         nvr: '💾',
@@ -49,10 +49,15 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
         cable: '🔗',
     };
 
+    const iconSize = equipment.iconSize || 48;
+    const iconBgColor = equipment.iconBgColor || '#3B82F6';
+    const displayIcon = equipment.icon || defaultIcons[equipment.type] || '📦';
+    const displayName = equipment.displayName || equipment.name || equipment.type;
+
     return (
         <>
             <div
-                className={`absolute cursor-move select-none ${isSelected ? 'ring-2 ring-blue-500' : ''}
+                className={`absolute cursor-move select-none ${isSelected ? 'ring-4 ring-blue-500 ring-offset-2' : ''}
                     ${isDragging ? 'opacity-75' : ''}`}
                 style={{
                     left: equipment.x,
@@ -66,9 +71,25 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
                 onMouseDown={handleMouseDown}
                 onContextMenu={handleContextMenu}
             >
-                <div className="bg-white border-2 border-gray-300 rounded-lg p-2 shadow-md hover:shadow-lg transition-shadow">
-                    <div className="text-3xl">{icons[equipment.type] || '📦'}</div>
-                    <div className="text-xs mt-1 text-center font-medium whitespace-nowrap">{equipment.name}</div>
+                <div
+                    className="flex flex-col items-center justify-center rounded-full shadow-lg hover:shadow-xl transition-all"
+                    style={{
+                        width: iconSize + 16,
+                        height: iconSize + 16,
+                        backgroundColor: iconBgColor
+                    }}
+                >
+                    <div style={{ fontSize: iconSize * 0.5 }}>
+                        {displayIcon}
+                    </div>
+                    {displayName && (
+                        <div
+                            className="text-white font-medium text-center px-1 leading-tight"
+                            style={{ fontSize: Math.max(8, iconSize * 0.15) }}
+                        >
+                            {displayName.substring(0, 12)}
+                        </div>
+                    )}
                 </div>
             </div>
         </>
@@ -219,7 +240,7 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
                 setContextMenu(null);
             }}
             onMouseDown={handleCanvasMouseDown}
-            style={{ overflow: imageZoom > 1 ? 'auto' : 'hidden' }}
+            style={{ overflow: 'scroll' }}
         >
             {/* Wrapper para permitir scroll físico quando em zoom */}
             <div
@@ -254,9 +275,9 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
                             onContextMenu={handleEquipmentContextMenu}
                         />
                     ))}
-                    {placedEquipments.length === 0 && !isOver && (
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-lg pointer-events-none">
-                            Arraste equipamentos da biblioteca para o canvas
+                    {placedEquipments.length === 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm pointer-events-none px-4 text-center">
+                            Clique em um item do catálogo para adicionar ao canvas
                         </div>
                     )}
                 </div>
