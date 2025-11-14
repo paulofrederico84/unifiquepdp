@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDelete, onContextMenu }) => {
     const [isDragging, setIsDragging] = useState(false);
+    const [showTooltip, setShowTooltip] = useState(false);
 
     const handleContextMenu = (e) => {
         e.preventDefault();
@@ -53,12 +54,14 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
     const iconBgColor = equipment.iconBgColor || '#3B82F6';
     const displayIcon = equipment.icon || defaultIcons[equipment.type] || '📦';
     const displayName = equipment.displayName || equipment.name || equipment.type;
+    const customImage = equipment.customIconImage;
 
     return (
         <>
             <div
-                className={`absolute cursor-move select-none ${isSelected ? 'ring-4 ring-blue-500 ring-offset-2' : ''}
-                    ${isDragging ? 'opacity-75' : ''}`}
+                className={`absolute cursor-move select-none group ${
+                    isDragging ? 'opacity-75' : ''
+                }`}
                 style={{
                     left: equipment.x,
                     top: equipment.y,
@@ -70,30 +73,69 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
                 }}
                 onMouseDown={handleMouseDown}
                 onContextMenu={handleContextMenu}
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
             >
+                {/* Ícone do equipamento */}
                 <div
                     className="flex flex-col items-center justify-center rounded-full shadow-lg hover:shadow-xl transition-all"
                     style={{
                         width: iconSize + 16,
                         height: iconSize + 16,
-                        backgroundColor: iconBgColor
+                        backgroundColor: customImage ? 'transparent' : iconBgColor
                     }}
                 >
-                    <div style={{ fontSize: iconSize * 0.5 }}>
-                        {displayIcon}
-                    </div>
-                    {displayName && (
-                        <div
-                            className="text-white font-medium text-center px-1 leading-tight"
-                            style={{ fontSize: Math.max(8, iconSize * 0.15) }}
-                        >
-                            {displayName.substring(0, 12)}
+                    {customImage ? (
+                        <img
+                            src={customImage}
+                            alt={displayName}
+                            className="rounded-full object-cover"
+                            style={{
+                                width: iconSize + 16,
+                                height: iconSize + 16
+                            }}
+                        />
+                    ) : (
+                        <div style={{ fontSize: iconSize * 0.5 }}>
+                            {displayIcon}
                         </div>
                     )}
                 </div>
+
+                {/* Tooltip com informações - aparece apenas no hover */}
+                {showTooltip && !isDragging && (
+                    <div
+                        className="absolute z-50 px-4 py-3 bg-gray-900 text-white rounded-lg shadow-2xl pointer-events-none whitespace-nowrap"
+                        style={{
+                            top: iconSize + 24,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            minWidth: '200px'
+                        }}
+                    >
+                        <div className="font-bold text-base mb-1">{displayName}</div>
+                        {equipment.brand && equipment.model && (
+                            <div className="text-sm text-gray-300">
+                                {equipment.brand}
+                                <br />
+                                {equipment.model}
+                            </div>
+                        )}
+                        {/* Seta do tooltip */}
+                        <div
+                            className="absolute w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-gray-900"
+                            style={{
+                                top: '-8px',
+                                left: '50%',
+                                transform: 'translateX(-50%)'
+                            }}
+                        />
+                    </div>
+                )}
             </div>
         </>
     );
+
 };
 
 export default function Canvas({ placedEquipments, onAddEquipment, selectedId, onSelectEquipment, onMoveEquipment, onDeleteEquipment, backgroundImage, imageZoom = 1, imageRotation = 0, imageOffsetX = 0, imageOffsetY = 0, onOffsetChange }) {

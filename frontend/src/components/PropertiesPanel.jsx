@@ -30,21 +30,19 @@ export default function PropertiesPanel({ selectedEquipment, onUpdateProperty, o
             <div className="flex gap-4 mb-4 pb-2 border-b">
                 <button
                     onClick={() => setActiveTab('config')}
-                    className={`pb-2 px-3 text-sm font-semibold border-b-2 transition-colors ${
-                        activeTab === 'config'
+                    className={`pb-2 px-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'config'
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
+                        }`}
                 >
                     ⚙️ Configurações
                 </button>
                 <button
                     onClick={() => setActiveTab('appearance')}
-                    className={`pb-2 px-3 text-sm font-semibold border-b-2 transition-colors ${
-                        activeTab === 'appearance'
+                    className={`pb-2 px-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'appearance'
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700'
-                    }`}
+                        }`}
                 >
                     🎨 Aparência
                 </button>
@@ -175,27 +173,72 @@ export default function PropertiesPanel({ selectedEquipment, onUpdateProperty, o
                             value={selectedEquipment.displayName || selectedEquipment.name || ''}
                             onChange={(e) => handleChange('displayName', e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Nome que aparecerá no ícone"
+                            placeholder="Nome que aparecerá no tooltip"
                         />
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Ícone</label>
-                        <div className="grid grid-cols-5 gap-2 p-3 border border-gray-200 rounded bg-gray-50 max-h-48 overflow-y-auto">
-                            {iconLibrary.map((icon, idx) => (
+                        
+                        {/* Opção: Imagem customizada */}
+                        <div className="mb-3">
+                            <label className="flex items-center gap-2 p-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onload = (event) => {
+                                                handleChange('customIconImage', event.target.result);
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
+                                />
+                                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <div className="flex-1">
+                                    <div className="text-sm font-medium text-gray-700">
+                                        {selectedEquipment.customIconImage ? 'Alterar imagem' : 'Carregar imagem do arquivo'}
+                                    </div>
+                                    <div className="text-xs text-gray-500">PNG, JPG, GIF até 5MB</div>
+                                </div>
+                            </label>
+                            {selectedEquipment.customIconImage && (
                                 <button
-                                    key={idx}
-                                    onClick={() => handleChange('icon', icon)}
-                                    className={`w-10 h-10 flex items-center justify-center text-xl rounded hover:bg-blue-100 transition-colors ${
-                                        (selectedEquipment.icon || '📹') === icon
-                                            ? 'bg-blue-200 ring-2 ring-blue-500'
-                                            : 'bg-white'
-                                    }`}
-                                    title={icon}
+                                    onClick={() => handleChange('customIconImage', null)}
+                                    className="mt-2 text-sm text-red-600 hover:text-red-700 underline"
                                 >
-                                    {icon}
+                                    Remover imagem customizada
                                 </button>
-                            ))}
+                            )}
+                        </div>
+
+                        {/* Opção: Biblioteca de ícones (desabilitada se tiver imagem custom) */}
+                        <div className={selectedEquipment.customIconImage ? 'opacity-50 pointer-events-none' : ''}>
+                            <div className="text-xs text-gray-500 mb-2">Ou escolha um ícone da biblioteca:</div>
+                            <div className="grid grid-cols-5 gap-2 p-3 border border-gray-200 rounded bg-gray-50 max-h-48 overflow-y-auto">
+                                {iconLibrary.map((icon, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => {
+                                            handleChange('customIconImage', null);
+                                            handleChange('icon', icon);
+                                        }}
+                                        className={`w-10 h-10 flex items-center justify-center text-xl rounded hover:bg-blue-100 transition-colors ${(selectedEquipment.icon || '📹') === icon && !selectedEquipment.customIconImage
+                                                ? 'bg-blue-200 ring-2 ring-blue-500'
+                                                : 'bg-white'
+                                            }`}
+                                        title={icon}
+                                    >
+                                        {icon}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
@@ -219,11 +262,10 @@ export default function PropertiesPanel({ selectedEquipment, onUpdateProperty, o
                                 <button
                                     key={color.value}
                                     onClick={() => handleChange('iconBgColor', color.value)}
-                                    className={`w-10 h-10 rounded-full border-2 transition-all ${
-                                        (selectedEquipment.iconBgColor || '#3B82F6') === color.value
+                                    className={`w-10 h-10 rounded-full border-2 transition-all ${(selectedEquipment.iconBgColor || '#3B82F6') === color.value
                                             ? 'ring-2 ring-offset-2 ring-blue-500 scale-110'
                                             : 'hover:scale-105'
-                                    }`}
+                                        }`}
                                     style={{ backgroundColor: color.value, borderColor: color.value === '#FFFFFF' ? '#D1D5DB' : color.value }}
                                     title={color.name}
                                 />
@@ -259,18 +301,22 @@ export default function PropertiesPanel({ selectedEquipment, onUpdateProperty, o
                                 style={{
                                     width: (selectedEquipment.iconSize || 48) + 16,
                                     height: (selectedEquipment.iconSize || 48) + 16,
-                                    backgroundColor: selectedEquipment.iconBgColor || '#3B82F6'
+                                    backgroundColor: selectedEquipment.customIconImage ? 'transparent' : (selectedEquipment.iconBgColor || '#3B82F6')
                                 }}
                             >
-                                <div style={{ fontSize: (selectedEquipment.iconSize || 48) * 0.5 }}>
-                                    {selectedEquipment.icon || '📹'}
-                                </div>
-                                {(selectedEquipment.displayName || selectedEquipment.name) && (
-                                    <div
-                                        className="mt-1 text-white font-medium text-center px-1"
-                                        style={{ fontSize: Math.max(8, (selectedEquipment.iconSize || 48) * 0.15) }}
-                                    >
-                                        {(selectedEquipment.displayName || selectedEquipment.name).substring(0, 12)}
+                                {selectedEquipment.customIconImage ? (
+                                    <img
+                                        src={selectedEquipment.customIconImage}
+                                        alt="Prévia"
+                                        className="rounded-full object-cover"
+                                        style={{
+                                            width: (selectedEquipment.iconSize || 48) + 16,
+                                            height: (selectedEquipment.iconSize || 48) + 16
+                                        }}
+                                    />
+                                ) : (
+                                    <div style={{ fontSize: (selectedEquipment.iconSize || 48) * 0.5 }}>
+                                        {selectedEquipment.icon || '📹'}
                                     </div>
                                 )}
                             </div>
