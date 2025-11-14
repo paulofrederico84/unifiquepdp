@@ -1,4 +1,4 @@
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:4000'
+const API_BASE = (import.meta?.env?.VITE_API_URL || '/api')
 
 export async function fetchProject(id) {
     const res = await fetch(`${API_BASE}/projects/${id}`)
@@ -32,4 +32,20 @@ export async function login(username, password) {
     return res.json()
 }
 
-export default { fetchProject, createProject, fetchAssets, login }
+export async function saveProjectLayout(projectId, equipments) {
+    const res = await fetch(`${API_BASE}/projects/${projectId}/layout`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ equipments })
+    })
+    if (!res.ok) throw new Error(`Failed to save layout: ${res.statusText}`)
+    return res.json()
+}
+
+export async function fetchProjectLayout(projectId) {
+    const res = await fetch(`${API_BASE}/projects/${projectId}/layout`)
+    if (!res.ok) throw new Error(`Failed to fetch layout: ${res.statusText}`)
+    return res.json()
+}
+
+export default { fetchProject, createProject, fetchAssets, login, saveProjectLayout, fetchProjectLayout }

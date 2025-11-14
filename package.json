@@ -1,0 +1,20 @@
+{
+    "name": "unifiquepdp-root",
+    "private": true,
+    "version": "0.0.1",
+    "scripts": {
+        "dev": "npm --prefix frontend run dev",
+        "build": "npm --prefix frontend run build",
+        "preview": "npm --prefix frontend exec vite preview --port 5174 --strictPort",
+        "lint": "npm --prefix frontend exec eslint src --ext .jsx,.js",
+        "dev-alt": "concurrently \"npm --prefix frontend run build:watch\" \"node server-dev-alt.js\""
+    },
+    "devDependencies": {
+        "compression": "^1.7.4",
+        "concurrently": "^8.2.2",
+        "express": "^4.19.2"
+    },
+    "dependencies": {
+        "react-google-autocomplete": "^2.7.5"
+    }
+}
