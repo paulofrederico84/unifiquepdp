@@ -79,6 +79,7 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
     const [isPanning, setIsPanning] = useState(false);
     const [panStart, setPanStart] = useState({ x: 0, y: 0 });
     const [contextMenu, setContextMenu] = useState(null);
+    const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
     const handleCopyEquipment = (equipment) => {
         onAddEquipment({
@@ -177,6 +178,28 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
             backgroundSize: '20px 20px',
         };
 
+    // Carregar tamanho natural da imagem para cálculo de área scroll
+    useEffect(() => {
+        if (backgroundImage) {
+            const img = new Image();
+            img.onload = () => {
+                setImageSize({ width: img.naturalWidth, height: img.naturalHeight });
+            };
+            img.src = backgroundImage;
+        } else {
+            setImageSize({ width: 0, height: 0 });
+        }
+    }, [backgroundImage]);
+
+    // Calcular bounding box após rotação (para dar espaço ao scroll)
+    const radians = (imageRotation * Math.PI) / 180;
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+    const rotatedWidth = Math.abs(imageSize.width * cos) + Math.abs(imageSize.height * sin);
+    const rotatedHeight = Math.abs(imageSize.width * sin) + Math.abs(imageSize.height * cos);
+    const scaledWidth = rotatedWidth * imageZoom;
+    const scaledHeight = rotatedHeight * imageZoom;
+
     // Estilo do container interno que aplica zoom, rotação e offset (pan)
     const transformStyle = backgroundImage
         ? {
@@ -190,13 +213,22 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
         <div
             ref={drop}
             id="canvas-area"
-            className={`relative w-full h-full border-2 border-dashed rounded transition-colors overflow-hidden ${isOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-white'} ${isPanning ? 'cursor-grabbing' : (backgroundImage && imageZoom > 1 ? 'cursor-grab' : '')}`}
+            className={`relative w-full h-full border-2 border-dashed rounded transition-colors ${isOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-white'} ${isPanning ? 'cursor-grabbing' : (backgroundImage && imageZoom > 1 ? 'cursor-grab' : '')}`}
             onClick={() => {
                 onSelectEquipment(null);
                 setContextMenu(null);
             }}
             onMouseDown={handleCanvasMouseDown}
+            style={{ overflow: imageZoom > 1 ? 'auto' : 'hidden' }}
         >
+            {/* Wrapper para permitir scroll físico quando em zoom */}
+            <div
+                className="relative mx-auto"
+                style={{
+                    width: scaledWidth || '100%',
+                    height: scaledHeight || '100%',
+                }}
+            >
             {/* Camada de fundo com zoom, rotação e pan */}
             <div
                 id="background-layer"
@@ -227,6 +259,7 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
                         Arraste equipamentos da biblioteca para o canvas
                     </div>
                 )}
+            </div>
             </div>
 
             {/* Menu de contexto - renderizado fora da camada transformada */}

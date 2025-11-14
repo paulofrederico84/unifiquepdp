@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import EquipmentLibrary from '../components/EquipmentLibrary';
+// Substitui biblioteca antiga por Sidebar + CameraPanel
+import Sidebar from '../components/Sidebar';
+import CameraPanel from '../components/CameraPanel';
 import Canvas from '../components/Canvas';
 import PropertiesPanel from '../components/PropertiesPanel';
 import { saveProjectLayout, fetchProjectLayout, fetchProject } from '../services/api';
@@ -20,6 +22,7 @@ export default function Editor() {
   const [imageOffsetX, setImageOffsetX] = useState(0);
   const [imageOffsetY, setImageOffsetY] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTool, setActiveTool] = useState(null); // 'camera', 'switch', etc
   const [isLoading, setIsLoading] = useState(true);
 
   const selectedEquipment = placedEquipments.find((eq) => eq.instanceId === selectedId);
@@ -67,8 +70,9 @@ export default function Editor() {
   }, [isLoading, projectName, id]);
 
   const handleAddEquipment = (equipment) => {
-    setPlacedEquipments([...placedEquipments, equipment]);
-    setSelectedId(equipment.instanceId);
+    const instanced = { ...equipment, instanceId: equipment.instanceId || `${equipment.id || 'eq'}-${Date.now()}`, x: 120, y: 120 };
+    setPlacedEquipments([...placedEquipments, instanced]);
+    setSelectedId(instanced.instanceId);
   };
 
   const handleMoveEquipment = (instanceId, x, y) => {
@@ -161,9 +165,10 @@ export default function Editor() {
       </header>
 
       <div className="flex gap-4" style={{ height: 'calc(100vh - 180px)' }}>
-        <aside className="w-64 bg-white p-4 rounded shadow overflow-hidden">
-          <EquipmentLibrary />
-        </aside>
+        {/* Nova Sidebar */}
+        <div className="h-full">
+          <Sidebar activeTool={activeTool} onSelect={(tool) => setActiveTool(tool === activeTool ? null : tool)} />
+        </div>
 
         <main className="flex-1 bg-white rounded shadow p-4 flex flex-col">
           {backgroundImage && (
@@ -201,6 +206,17 @@ export default function Editor() {
             />
           </div>
         </main>
+
+        {/* Painel flutuante de câmeras (Catálogo) */}
+        {activeTool === 'camera' && (
+          <CameraPanel
+            onClose={() => setActiveTool(null)}
+            onAddEquipment={handleAddEquipment}
+            placedEquipments={placedEquipments}
+            onDeleteEquipment={handleDeleteEquipment}
+            onDuplicateEquipment={(eq) => handleAddEquipment({ ...eq, instanceId: undefined })}
+          />
+        )}
 
         {/* Painel de propriedades flutuante - aparece apenas quando equipamento selecionado */}
         {selectedEquipment && (
