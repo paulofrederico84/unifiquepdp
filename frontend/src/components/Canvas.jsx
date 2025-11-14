@@ -229,37 +229,37 @@ export default function Canvas({ placedEquipments, onAddEquipment, selectedId, o
                     height: scaledHeight || '100%',
                 }}
             >
-            {/* Camada de fundo com zoom, rotação e pan */}
-            <div
-                id="background-layer"
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                style={{ ...backgroundStyle, ...transformStyle }}
-            />
+                {/* Camada de fundo com zoom, rotação e pan */}
+                <div
+                    id="background-layer"
+                    className="absolute inset-0 w-full h-full pointer-events-none"
+                    style={{ ...backgroundStyle, ...transformStyle }}
+                />
 
-            {/* Camada de equipamentos com mesma transformação */}
-            <div
-                id="equipment-layer"
-                className="absolute inset-0 w-full h-full"
-                style={transformStyle}
-            >
-                {placedEquipments.map((eq) => (
-                    <PlacedEquipment
-                        key={eq.instanceId}
-                        equipment={eq}
-                        isSelected={eq.instanceId === selectedId}
-                        onSelect={onSelectEquipment}
-                        onMove={onMoveEquipment}
-                        onCopy={handleCopyEquipment}
-                        onDelete={onDeleteEquipment}
-                        onContextMenu={handleEquipmentContextMenu}
-                    />
-                ))}
-                {placedEquipments.length === 0 && !isOver && (
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-lg pointer-events-none">
-                        Arraste equipamentos da biblioteca para o canvas
-                    </div>
-                )}
-            </div>
+                {/* Camada de equipamentos com mesma transformação */}
+                <div
+                    id="equipment-layer"
+                    className="absolute inset-0 w-full h-full"
+                    style={transformStyle}
+                >
+                    {placedEquipments.map((eq) => (
+                        <PlacedEquipment
+                            key={eq.instanceId}
+                            equipment={eq}
+                            isSelected={eq.instanceId === selectedId}
+                            onSelect={onSelectEquipment}
+                            onMove={onMoveEquipment}
+                            onCopy={handleCopyEquipment}
+                            onDelete={onDeleteEquipment}
+                            onContextMenu={handleEquipmentContextMenu}
+                        />
+                    ))}
+                    {placedEquipments.length === 0 && !isOver && (
+                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-lg pointer-events-none">
+                            Arraste equipamentos da biblioteca para o canvas
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Menu de contexto - renderizado fora da camada transformada */}
