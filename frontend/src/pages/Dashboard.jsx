@@ -22,7 +22,7 @@ export default function Dashboard() {
           {/* Seção de Projetos Recentes */}
           <div className="max-w-5xl mx-auto">
             <h2 className="text-4xl font-bold text-[#0077B6] mb-8 text-center">Projetos Recentes</h2>
-            
+
             <div className="grid grid-cols-1 gap-4">
               {recentProjects.map(project => (
                 <div key={project.id} className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between hover:shadow-lg transition-shadow">
@@ -38,7 +38,7 @@ export default function Dashboard() {
                     }`}>
                       {project.status}
                     </span>
-                    <Link 
+                    <Link
                       to={`/projects/${project.id}/editor`}
                       className="px-6 py-2 bg-[#00B5E2] hover:bg-[#0095c2] text-white rounded-lg font-medium transition-colors"
                     >
