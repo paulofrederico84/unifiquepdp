@@ -4,7 +4,12 @@ export default function Header() {
     return (
         <header className="bg-white border-b shadow-sm px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-                <div className="text-2xl font-bold text-blue-700">Unifique</div>
+                {/* Substitua a URL abaixo pelo caminho da sua logo */}
+                <img 
+                    src="/logo-unifique.png" 
+                    alt="Unifique" 
+                    className="h-10 w-auto"
+                />
                 <div className="text-sm text-gray-500">PDP</div>
             </div>
             <div className="flex items-center gap-4">

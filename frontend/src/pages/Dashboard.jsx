@@ -31,11 +31,10 @@ export default function Dashboard() {
                     <p className="text-sm text-gray-600">Última modificação: {new Date(project.lastModified).toLocaleDateString('pt-BR')}</p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      project.status === 'Ativo' ? 'bg-green-100 text-green-700' :
-                      project.status === 'Concluído' ? 'bg-blue-100 text-blue-700' :
-                      'bg-yellow-100 text-yellow-700'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${project.status === 'Ativo' ? 'bg-green-100 text-green-700' :
+                        project.status === 'Concluído' ? 'bg-blue-100 text-blue-700' :
+                          'bg-yellow-100 text-yellow-700'
+                      }`}>
                       {project.status}
                     </span>
                     <Link
