@@ -10,7 +10,7 @@ export default function Header() {
                     alt="Unifique" 
                     className="h-10 w-auto"
                 />
-                <div className="text-sm text-gray-500">PDP</div>
+                <div className="text-2xl font-bold text-[#0077B6]">PDP</div>
             </div>
             <div className="flex items-center gap-4">
                 <button className="text-sm text-gray-600 hover:text-gray-800">Configurações</button>
