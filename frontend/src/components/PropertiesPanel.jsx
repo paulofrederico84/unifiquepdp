@@ -347,15 +347,15 @@ export default function PropertiesPanel({ selectedEquipment, onUpdateProperty, o
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Transparência da cor de fundo: <span className="font-normal text-gray-500">{Math.round((1 - (selectedEquipment.iconBgOpacity ?? 1)) * 100)}%</span>
+                            Transparência da cor de fundo: <span className="font-normal text-gray-500">{Math.round((selectedEquipment.iconBgTransparency ?? 0) * 100)}%</span>
                         </label>
                         <input
                             type="range"
                             min="0"
                             max="1"
                             step="0.05"
-                            value={1 - (selectedEquipment.iconBgOpacity ?? 1)}
-                            onChange={(e) => handleChange('iconBgOpacity', 1 - parseFloat(e.target.value))}
+                            value={selectedEquipment.iconBgTransparency ?? 0}
+                            onChange={(e) => handleChange('iconBgTransparency', parseFloat(e.target.value))}
                             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -394,7 +394,15 @@ export default function PropertiesPanel({ selectedEquipment, onUpdateProperty, o
                                     height: (selectedEquipment.iconSize || 48) + 16,
                                     backgroundColor: selectedEquipment.customIconImage
                                         ? 'transparent'
-                                        : `${selectedEquipment.iconBgColor || '#3B82F6'}${Math.round((selectedEquipment.iconBgOpacity ?? 1) * 255).toString(16).padStart(2, '0')}`
+                                        : (() => {
+                                            const transparency = selectedEquipment.iconBgTransparency ?? 0;
+                                            const opacity = 1 - transparency;
+                                            const color = selectedEquipment.iconBgColor || '#3B82F6';
+                                            const r = parseInt(color.slice(1, 3), 16);
+                                            const g = parseInt(color.slice(3, 5), 16);
+                                            const b = parseInt(color.slice(5, 7), 16);
+                                            return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                                        })()
                                 }}
                             >
                                 {selectedEquipment.customIconImage ? (
