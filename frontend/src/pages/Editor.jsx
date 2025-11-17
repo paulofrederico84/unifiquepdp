@@ -73,7 +73,28 @@ export default function Editor() {
   }, [isLoading, projectName, id]);
 
   const handleAddEquipment = (equipment) => {
-    const instanced = { ...equipment, instanceId: equipment.instanceId || `${equipment.id || 'eq'}-${Date.now()}`, x: 120, y: 120 };
+    // Defaults por tipo de equipamento
+    const defaults = {
+      camera: { icon: 'bullet', iconColor: '#111111', iconBgColor: '#3B82F6', iconGlyphScale: 0.7, iconSize: 48 },
+      switch: { icon: 'switch-poe', iconColor: '#111111', iconBgColor: '#10B981', iconGlyphScale: 0.7, iconSize: 48 },
+      nvr: { icon: 'nvr', iconColor: '#111111', iconBgColor: '#6B7280', iconGlyphScale: 0.7, iconSize: 48 },
+      router: { icon: 'router', iconColor: '#111111', iconBgColor: '#F59E0B', iconGlyphScale: 0.7, iconSize: 48 },
+      cable: { icon: 'cable', iconColor: '#111111', iconBgColor: '#FFFFFF', iconGlyphScale: 0.7, iconSize: 48 },
+    };
+    const typeDefaults = defaults[equipment.type] || defaults.camera;
+    const instanced = {
+      ...equipment,
+      instanceId: equipment.instanceId || `${equipment.id || 'eq'}-${Date.now()}`,
+      x: 120,
+      y: 120,
+      ...typeDefaults,
+      // Preserva valores já definidos no equipment
+      icon: equipment.icon || typeDefaults.icon,
+      iconColor: equipment.iconColor || typeDefaults.iconColor,
+      iconBgColor: equipment.iconBgColor || typeDefaults.iconBgColor,
+      iconGlyphScale: equipment.iconGlyphScale ?? typeDefaults.iconGlyphScale,
+      iconSize: equipment.iconSize || typeDefaults.iconSize,
+    };
     setPlacedEquipments([...placedEquipments, instanced]);
     setSelectedId(instanced.instanceId);
   };

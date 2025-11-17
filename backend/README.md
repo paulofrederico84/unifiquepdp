@@ -1,11 +1,11 @@
-# Unifique PDP - Backend (Python/FastAPI)
+# Unifique PDP - Backend
 
-API backend em Python com FastAPI.
+API backend em Python com Flask.
 
 ## Setup
 
 ```bash
-# Criar virtual environment (recomendado)
+# Criar virtual environment
 python3 -m venv venv
 source venv/bin/activate  # macOS/Linux
 # ou
@@ -13,29 +13,36 @@ venv\Scripts\activate  # Windows
 
 # Instalar dependências
 pip install -r requirements.txt
-
-# Configurar variáveis de ambiente
-cp .env.example .env
-# edite .env conforme necessário
 ```
 
 ## Rodar
 
 ```bash
 # Desenvolvimento (com reload automático)
-python -m uvicorn main:app --reload --host 0.0.0.0 --port 4000
+python app.py
 
-# Ou diretamente
-uvicorn main:app --reload
+# Ou usando o script run.py
+python run.py
 ```
 
 Servidor estará em: http://localhost:4000
-Docs automáticos (Swagger): http://localhost:4000/docs
 
-## Rotas
+## Rotas da API
 
-- `GET /` — status API
-- `POST /auth/login` — autenticação mock
-- `POST /projects` — criar projeto
-- `GET /projects/{id}` — obter projeto
-- `GET /assets` — listar assets (câmeras, dispositivos)
+- `GET /api` — Status da API
+- `POST /api/auth/login` — Autenticação
+- `POST /api/projects/` — Criar projeto
+- `GET /api/projects/{id}` — Obter projeto
+- `PUT /api/projects/{id}/layout` — Salvar layout
+- `GET /api/projects/{id}/layout` — Obter layout
+- `GET /api/assets/` — Listar equipamentos
+
+## Estrutura
+
+```
+backend/
+├── app.py              # Aplicação Flask principal
+├── run.py              # Script de inicialização
+├── requirements.txt    # Dependências Python
+└── venv/              # Ambiente virtual (não commitar)
+```

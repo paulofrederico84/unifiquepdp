@@ -1,0 +1,8 @@
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+  <!-- Cúpula reforçada -->
+  <path d="M6 22a18 18 0 0 1 36 0v2H6v-2z" stroke="currentColor" stroke-width="1.5" />
+  <path d="M10 26h28a10 10 0 0 1-28 0z" stroke="currentColor" stroke-width="1.5" />
+  <circle cx="24" cy="30" r="4" />
+  <!-- Marcas antivandalismo -->
+  <path d="M12 24h4M16 22h4M20 24h4M24 22h4M28 24h4M32 22h4" stroke="currentColor" stroke-width="1" opacity="0.5" />
+</svg>

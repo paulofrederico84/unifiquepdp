@@ -18,21 +18,27 @@ export default function PropertiesPanel({ selectedEquipment, onUpdateProperty, o
 
     // Biblioteca de ícones baseada no sprite em /public/icons/cctv/cctv-sprite.svg
     const iconLibrary = [
-        { id: 'bullet', label: 'Bullet' },
-        { id: 'dome', label: 'Dome' },
-        { id: 'turret', label: 'Turret' },
-        { id: 'ptz', label: 'PTZ' },
-        { id: 'box', label: 'Box' },
-        { id: 'cube', label: 'Cube' },
-        { id: 'fisheye', label: 'Fisheye' },
-        { id: 'wifi-cam', label: 'Wi‑Fi Cam' },
-        { id: 'lpr', label: 'LPR' },
-        { id: 'nvr', label: 'NVR/DVR' },
-        { id: 'switch-poe', label: 'Switch PoE' },
-        { id: 'router', label: 'Roteador' },
-        { id: 'monitor', label: 'Monitor' },
-        { id: 'ceiling-ap', label: 'AP Teto' },
-        { id: 'cable', label: 'Cabo' },
+        // Câmeras
+        { id: 'bullet', label: 'Bullet', category: 'Câmeras' },
+        { id: 'bullet-ir', label: 'Bullet IR', category: 'Câmeras' },
+        { id: 'dome', label: 'Dome', category: 'Câmeras' },
+        { id: 'dome-vandal', label: 'Dome Antivandalismo', category: 'Câmeras' },
+        { id: 'turret', label: 'Turret', category: 'Câmeras' },
+        { id: 'ptz', label: 'PTZ', category: 'Câmeras' },
+        { id: 'ptz-wall', label: 'PTZ Parede', category: 'Câmeras' },
+        { id: 'box', label: 'Box', category: 'Câmeras' },
+        { id: 'cube', label: 'Cube', category: 'Câmeras' },
+        { id: 'fisheye', label: 'Fisheye', category: 'Câmeras' },
+        { id: 'wifi-cam', label: 'Wi‑Fi Cam', category: 'Câmeras' },
+        { id: 'lpr', label: 'LPR', category: 'Câmeras' },
+        // Rede e gravação
+        { id: 'nvr', label: 'NVR/DVR', category: 'Rede' },
+        { id: 'switch-poe', label: 'Switch PoE', category: 'Rede' },
+        { id: 'router', label: 'Roteador', category: 'Rede' },
+        { id: 'ceiling-ap', label: 'AP Teto', category: 'Rede' },
+        // Acessórios
+        { id: 'monitor', label: 'Monitor', category: 'Acessórios' },
+        { id: 'cable', label: 'Cabo', category: 'Acessórios' },
     ];
 
     return (
@@ -232,20 +238,27 @@ export default function PropertiesPanel({ selectedEquipment, onUpdateProperty, o
                         {/* Opção: Biblioteca de ícones (desabilitada se tiver imagem custom) */}
                         <div className={selectedEquipment.customIconImage ? 'opacity-50 pointer-events-none' : ''}>
                             <div className="text-xs text-gray-500 mb-2">Ou escolha um ícone da biblioteca:</div>
-                            <div className="grid grid-cols-6 gap-2 p-3 border border-gray-200 rounded bg-white max-h-56 overflow-y-auto">
-                                {iconLibrary.map(({ id, label }) => {
-                                    const isSelected = selectedEquipment.icon === id && !selectedEquipment.customIconImage;
-                                    return (
-                                        <button
-                                            key={id}
-                                            onClick={() => { handleChange('customIconImage', null); handleChange('icon', id); }}
-                                            className={`w-14 h-14 flex items-center justify-center rounded transition-all hover:bg-blue-50 ${isSelected ? 'bg-blue-100 ring-2 ring-blue-500' : 'bg-gray-50'}`}
-                                            title={label}
-                                        >
-                                            <CctvIconSprite name={id} size={28} color={selectedEquipment.iconColor || '#111111'} />
-                                        </button>
-                                    );
-                                })}
+                            <div className="space-y-3 p-3 border border-gray-200 rounded bg-white max-h-56 overflow-y-auto">
+                                {['Câmeras', 'Rede', 'Acessórios'].map((category) => (
+                                    <div key={category}>
+                                        <div className="text-xs font-semibold text-gray-600 mb-1.5">{category}</div>
+                                        <div className="grid grid-cols-6 gap-2">
+                                            {iconLibrary.filter(item => item.category === category).map(({ id, label }) => {
+                                                const isSelected = selectedEquipment.icon === id && !selectedEquipment.customIconImage;
+                                                return (
+                                                    <button
+                                                        key={id}
+                                                        onClick={() => { handleChange('customIconImage', null); handleChange('icon', id); }}
+                                                        className={`w-14 h-14 flex items-center justify-center rounded transition-all hover:bg-blue-50 ${isSelected ? 'bg-blue-100 ring-2 ring-blue-500' : 'bg-gray-50'}`}
+                                                        title={label}
+                                                    >
+                                                        <CctvIconSprite name={id} size={28} color={selectedEquipment.iconColor || '#111111'} />
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

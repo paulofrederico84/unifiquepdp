@@ -6,79 +6,57 @@ Sistema completo para design e gerenciamento de projetos de CFTV e redes, com ed
 
 ## 📋 Requisitos
 
-- **Python 3.10+** (backend)
-- **Node.js 18+** (build do frontend)
-- **Google Maps API Key** (para autocomplete de endereços)
+- **Python 3.10+**
+- **Google Maps API Key** (opcional - para autocomplete de endereços)
 
 ---
 
-## 🚀 Instalação e Configuração
+## 🚀 Instalação
 
-### 1. Backend (Python/Starlette)
+### Setup Automático (Recomendado)
 
 ```bash
+python3 setup.py
+```
+
+### Setup Manual
+
+```bash
+# 1. Criar ambiente virtual
 cd backend
 python3 -m venv venv
 source venv/bin/activate  # macOS/Linux
+# ou: venv\Scripts\activate  # Windows
+
+# 2. Instalar dependências
 pip install -r requirements.txt
 ```
 
-### 2. Frontend (React/Vite)
+### 3. Configurar Google Maps API (Opcional)
 
-```bash
-cd frontend
-npm install
+Crie o arquivo `backend/.env` com sua chave da API:
+```
+GOOGLE_MAPS_API_KEY=sua_chave_aqui
 ```
 
-### 3. Configurar Google Maps API
-
-1. Crie/ative uma chave no [Google Cloud Console](https://console.cloud.google.com):
-   - Ative: **Maps JavaScript API** e **Places API**
-   - Restrições de referenciador: `http://127.0.0.1:*`, `http://localhost:*`
-   - Copie a chave gerada
-
-2. Crie o arquivo `frontend/.env`:
-   ```
-   VITE_GOOGLE_MAPS_API_KEY=SUA_CHAVE_AQUI
-   ```
+Para obter a chave, acesse [Google Cloud Console](https://console.cloud.google.com) e ative **Maps JavaScript API** e **Places API**.
 
 ---
 
 ## ▶️ Como Executar
 
-### Desenvolvimento (Frontend HMR + Backend separado)
+### Usando o script de inicialização
 
-**Terminal 1 - Backend:**
+```bash
+./start.sh
+```
+
+### Manualmente
+
 ```bash
 cd backend
 source venv/bin/activate
-python main.py
-# Roda em http://127.0.0.1:4000
-```
-
-**Terminal 2 - Frontend (dev server):**
-```bash
-cd frontend
-npm run dev
-# Roda em http://127.0.0.1:5173
-```
-
----
-
-### Produção (Backend serve frontend buildado)
-
-**Passo 1 - Build do frontend:**
-```bash
-cd frontend
-npm run build
-# Gera frontend/dist/
-```
-
-**Passo 2 - Rodar backend (serve API + frontend):**
-```bash
-cd backend
-source venv/bin/activate
-python main.py
+python app.py
 ```
 
 **Acesse:** http://127.0.0.1:4000
@@ -90,52 +68,36 @@ python main.py
 ```
 UnifiquePDP/
 ├── backend/
-│   ├── main.py              # Backend API + servidor de arquivos estáticos
-│   ├── requirements.txt     # Dependências Python
-│   └── venv/               # Ambiente virtual Python
+│   ├── app.py              # Aplicação Flask principal
+│   ├── run.py              # Script de inicialização
+│   ├── requirements.txt    # Dependências Python
+│   └── venv/              # Ambiente virtual Python
 │
-├── frontend/
-│   ├── src/
-│   │   ├── pages/          # Dashboard, NewProject, Editor
-│   │   ├── components/     # Header, Sidebar, Canvas, etc.
-│   │   ├── services/       # API client (api.js)
-│   │   └── styles/         # Tailwind CSS
-│   ├── dist/               # Build de produção (gerado por npm run build)
-│   ├── package.json        # Dependências e scripts
-│   ├── vite.config.js      # Configuração Vite
-│   └── .env                # Variáveis de ambiente (VITE_GOOGLE_MAPS_API_KEY)
+├── frontend/              # Interface web
+│   └── static/           # Arquivos estáticos (CSS, JS, imagens)
 │
-└── README.md               # Este arquivo
+├── setup.py              # Script de configuração inicial
+├── start.sh              # Script de inicialização rápida
+└── README.md            # Este arquivo
 ```
 
 ---
 
 ## 🛠️ Comandos Úteis
 
-### Frontend
-
 ```bash
-cd frontend
-
-# Desenvolvimento com hot-reload
-npm run dev
-
-# Build de produção
-npm run build
-```
-
-### Backend
-
-```bash
-cd backend
-source venv/bin/activate
+# Ativar ambiente virtual
+source backend/venv/bin/activate
 
 # Rodar servidor
-python main.py
+python backend/app.py
 
 # Instalar nova dependência
 pip install <pacote>
-pip freeze > requirements.txt
+pip freeze > backend/requirements.txt
+
+# Desativar ambiente virtual
+deactivate
 ```
 
 ---
@@ -154,9 +116,8 @@ pip freeze > requirements.txt
 ### Assets
 - `GET /api/assets/` - Listar equipamentos disponíveis
 
-### Frontend
-- `GET /` - SPA (React Router)
-- `GET /assets/*` - Arquivos estáticos (JS, CSS, imagens)
+### Status
+- `GET /api` - Status da API
 
 ---
 
@@ -164,16 +125,16 @@ pip freeze > requirements.txt
 
 ### Erro: "Frontend build não encontrado"
 ```bash
-cd frontend
-npm run build
+python3 build_frontend.py
+# Ou manualmente:
+cd frontend && npm run build
 ```
 
-### Erro: "Connection refused" no backend
-Verifique se o backend está rodando:
+### Erro: "Módulo flask não encontrado"
 ```bash
 cd backend
 source venv/bin/activate
-python main.py
+pip install -r requirements.txt
 ```
 
 ### Autocomplete do Google Maps não funciona
@@ -188,54 +149,46 @@ python main.py
    ```
 
 ### Porta 4000 já em uso
-Mate processos na porta:
 ```bash
+# Verificar processo usando a porta
+lsof -ti:4000
+
+# Matar processo
 lsof -ti:4000 | xargs kill -9
+
+# Ou use porta diferente
+PORT=5000 python backend/app.py
 ```
 
-Ou altere a porta no backend:
+### Erro de permissão no start.sh
 ```bash
-PORT=5000 python main.py
+chmod +x start.sh
 ```
 
 ---
 
-## 📦 Tecnologias Utilizadas
+## 📦 Tecnologias
 
-### Backend
-- **Python 3.14**
-- **Starlette** - Framework ASGI leve
-- **Uvicorn** - Servidor ASGI
+- **Python 3.10+** - Linguagem principal
+- **Flask** - Framework web
+- **Flask-CORS** - Suporte CORS
 - **python-dotenv** - Gerenciamento de variáveis de ambiente
 
-### Frontend
-- **React 18** - Interface
-- **Vite 5** - Build tool
-- **Tailwind CSS** - Estilização
-- **React Router** - Roteamento SPA
-- **React DnD** - Drag and drop
-- **Framer Motion** - Animações
-- **Recharts** - Gráficos
-- **react-google-autocomplete** - Autocomplete de endereços
-
 ---
 
-## 👨‍💻 Para Desenvolvedores
+## 👨‍💻 Desenvolvimento
 
-### Estrutura de Código Limpo
+### Arquitetura
 
-- **Backend (`main.py`):** Organizado em seções claras com comentários descritivos
-- **Frontend:** Componentes modulares, services para API
-- **Sem código legado:** Removidos servidores Express e scripts obsoletos
-- **Documentação inline:** Docstrings em Python, comentários em JS
+O projeto utiliza Flask para servir tanto a API REST quanto a interface web. A aplicação é organizada de forma modular com separação clara entre rotas, lógica de negócio e apresentação.
 
 ### Próximos Passos
 
 1. Implementar banco de dados (PostgreSQL/SQLite)
-2. Autenticação JWT real
-3. Upload de imagens de fundo
-4. Geração de PDFs de relatórios
-5. Deploy (Docker + Railway/Render)
+2. Autenticação JWT
+3. Sistema de relatórios
+4. Exportação PDF/Excel
+5. Deploy em produção
 
 ---
 
@@ -245,4 +198,4 @@ Propriedade da Unifique - Uso interno.
 
 ---
 
-**Desenvolvido com ❤️ pela equipe Unifique**
+**Desenvolvido pela equipe Unifique**
