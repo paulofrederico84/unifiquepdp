@@ -1,29 +1,31 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-// Nova Sidebar minimalista baseada em paleta azul
-// Tons usados: fundo #12171d / item #1e252c / ativo #0077B6 / borda ativa #00B5E2
-const tools = [
-    { id: 'camera', label: 'Câmeras', icon: '🎥' },
-    { id: 'switch', label: 'Switches', icon: '🖧' },
-    { id: 'nvr', label: 'NVR', icon: '💾' },
-    { id: 'router', label: 'Roteador', icon: '📡' },
+// Menu lateral de Ações Rápidas (Quick Actions)
+// Cores: unifique-blue (#0077B6), unifique-green (#00B5E2)
+const quickActions = [
+    { id: 'new-project', label: 'Novo Projeto', icon: '➕', to: '/projects/new' },
+    { id: 'open-project', label: 'Abrir Projeto', icon: '📂', to: '/' },
+    { id: 'reports', label: 'Relatório', icon: '📊', to: '/reports' },
+    { id: 'docs', label: 'Documentação', icon: '📖', to: '/docs' },
 ];
 
-export default function Sidebar({ activeTool, onSelect }) {
+export default function Sidebar() {
     return (
-        <div className="h-full py-6 px-2 bg-[#e8f4f8] w-20 flex flex-col items-center gap-4 rounded-xl shadow-xl border border-[#b3d9ed]">
-            {tools.map(t => (
-                <button
-                    key={t.id}
-                    onClick={() => onSelect(t.id)}
-                    className={`w-14 h-14 rounded-lg flex flex-col items-center justify-center text-[11px] font-medium transition-all border select-none
-            ${activeTool === t.id ? 'bg-[#0077B6] text-white border-[#00B5E2] shadow-lg' : 'bg-white text-[#1f3347] border-[#c9d9e6] hover:bg-[#d4ebf7]'}`}
-                    title={t.label}
-                >
-                    <span className="text-xl">{t.icon}</span>
-                    <span className="leading-none mt-1">{t.label}</span>
-                </button>
-            ))}
+        <div className="m-4 w-64 bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+            <h3 className="text-lg font-bold text-[#0077B6] mb-4">Ações Rápidas</h3>
+            <div className="flex flex-col gap-3">
+                {quickActions.map(action => (
+                    <Link
+                        key={action.id}
+                        to={action.to}
+                        className="flex items-center gap-3 px-4 py-3 bg-[#0077B6] hover:bg-[#005f8f] text-white rounded-lg transition-all shadow-sm font-medium"
+                    >
+                        <span className="text-xl">{action.icon}</span>
+                        <span>{action.label}</span>
+                    </Link>
+                ))}
+            </div>
         </div>
     );
 }
