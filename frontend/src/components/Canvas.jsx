@@ -53,9 +53,20 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
 
     const iconSize = equipment.iconSize || 48;
     const iconBgColor = equipment.iconBgColor || '#3B82F6';
+    const iconBgOpacity = equipment.iconBgOpacity ?? 1;
     const displayIcon = equipment.icon || defaultIcons[equipment.type] || 'bullet';
     const displayName = equipment.displayName || equipment.name || equipment.type;
     const customImage = equipment.customIconImage;
+
+    // Converter cor hex para rgba com opacidade
+    const hexToRgba = (hex, alpha) => {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
+    const bgColorWithOpacity = customImage ? 'transparent' : hexToRgba(iconBgColor, iconBgOpacity);
 
     return (
         <>
@@ -82,7 +93,7 @@ const PlacedEquipment = ({ equipment, onSelect, isSelected, onMove, onCopy, onDe
                     style={{
                         width: iconSize + 16,
                         height: iconSize + 16,
-                        backgroundColor: customImage ? 'transparent' : iconBgColor
+                        backgroundColor: bgColorWithOpacity
                     }}
                 >
                     {customImage ? (

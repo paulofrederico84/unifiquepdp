@@ -347,6 +347,25 @@ export default function PropertiesPanel({ selectedEquipment, onUpdateProperty, o
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Transparência da cor de fundo: <span className="font-normal text-gray-500">{Math.round((1 - (selectedEquipment.iconBgOpacity ?? 1)) * 100)}%</span>
+                        </label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={1 - (selectedEquipment.iconBgOpacity ?? 1)}
+                            onChange={(e) => handleChange('iconBgOpacity', 1 - parseFloat(e.target.value))}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                        />
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>0% (Opaco)</span>
+                            <span>100% (Transparente)</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
                             Tamanho do ícone: <span className="font-normal text-gray-500">{selectedEquipment.iconSize || 48}px</span>
                         </label>
                         <input
@@ -373,7 +392,9 @@ export default function PropertiesPanel({ selectedEquipment, onUpdateProperty, o
                                 style={{
                                     width: (selectedEquipment.iconSize || 48) + 16,
                                     height: (selectedEquipment.iconSize || 48) + 16,
-                                    backgroundColor: selectedEquipment.customIconImage ? 'transparent' : (selectedEquipment.iconBgColor || '#3B82F6')
+                                    backgroundColor: selectedEquipment.customIconImage
+                                        ? 'transparent'
+                                        : `${selectedEquipment.iconBgColor || '#3B82F6'}${Math.round((selectedEquipment.iconBgOpacity ?? 1) * 255).toString(16).padStart(2, '0')}`
                                 }}
                             >
                                 {selectedEquipment.customIconImage ? (
